@@ -1,0 +1,6 @@
+id = notinit
+"string"
+id = ?
+id = ""
+id = "\uoo"
+print 

@@ -1,0 +1,7 @@
+get "https://www.google.com/teapot" 418
+get "https://httpbin.org/status/code" 400 ? "Invalid status code"
+post "https://httpbin.org/status/404" 404
+get "https://httpbin.org/status/200" 
+post "https://httpbin.org/status/200" 
+PUT "https://httpbin.org/status/200" 
+DELETE "https://httpbin.org/status/200" 

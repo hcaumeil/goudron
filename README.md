@@ -18,7 +18,7 @@ Write small scripts to automate test requests.
 
 ## Quick start :
 
-Create a file name hello.goud and write your first script : 
+Create a file named hello.goud and write your first script : 
 
 ```
 print "Hello, World!"
