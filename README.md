@@ -81,7 +81,7 @@ print "brown" + variable
 
 ### Request 
 
-5 request method are available :
+4 request method are available :
 - get
 - post
 - put
