@@ -36,12 +36,13 @@ For more information about the goudron command, run :
 
 ### String
 
-A string is any sequence of UTF-8 character between two `"` or two `'`
+A string is any sequence of UTF-8 character between two `"` or two `'`.  
 You can escape only these things for now :
 - `\n` - new line
 - `\t` - tabulation
-- `\\` - back slash
 - `\"` - double quote
+- `\'` - single quote
+- `\\` - back slash
 
 ### Variable 
 

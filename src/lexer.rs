@@ -128,6 +128,8 @@ impl<'l> Lexer<'l> {
                         buffer.push('\t' as u8);
                     } else if self.c == '\"' {
                         buffer.push('\"' as u8);
+                    } else if self.c == '\'' {
+                        buffer.push('\'' as u8);
                     } else if self.c == '\\' {
                         buffer.push('\\' as u8);
                     } else {
