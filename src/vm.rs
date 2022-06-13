@@ -1,4 +1,5 @@
 use curl::easy::Easy;
+use curl::easy::List;
 use std::collections::HashMap;
 use std::io::Read;
 use std::process::exit;
@@ -10,9 +11,9 @@ pub enum Inst {
     InstGain(String),
     InstPlus,
     InstPrint,
-    InstReq(String, bool),
-    InstReqandPush(String, bool),
-    InstReqandCompare(String, bool),
+    InstReq(String, bool, bool),
+    InstReqandPush(String, bool, bool),
+    InstReqandCompare(String, bool, bool),
 }
 
 pub struct Vm {
@@ -42,7 +43,7 @@ impl Vm {
         }
     }
 
-    fn req(url: String, body: String, method: &str) -> Option<(String, String)> {
+    fn req(url: String, body: String, method: &str, json: bool) -> Option<(String, String)> {
         let mut res = String::new();
         let code: String;
         let mut data = Vec::new();
@@ -68,6 +69,19 @@ impl Vm {
                 Err(_) => return None,
             },
             _ => {}
+        }
+
+        if json {
+            let mut list = List::new();
+            match list.append("content-type: application/json") {
+                Ok(_) => {}
+                Err(_) => return None,
+            }
+
+            match handle.http_headers(list) {
+                Ok(_) => {}
+                Err(_) => return None,
+            }
         }
 
         {
@@ -141,7 +155,7 @@ impl Vm {
                         self.stack.pop();
                     }
                 }
-                Inst::InstReq(m, b) => {
+                Inst::InstReq(m, b, j) => {
                     if self.stack.len() > 1 {
                         let mut body = String::from("");
 
@@ -153,7 +167,7 @@ impl Vm {
                             self.stack.pop();
                         }
 
-                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str()) {
+                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str(), *j) {
                             Some((_, code)) => {
                                 if code == expected_code {
                                     self.stack.pop();
@@ -186,7 +200,7 @@ impl Vm {
                         self.err += 1;
                     }
                 }
-                Inst::InstReqandPush(m, b) => {
+                Inst::InstReqandPush(m, b, j) => {
                     if self.stack.len() > 1 {
                         let mut body = String::from("");
 
@@ -198,7 +212,7 @@ impl Vm {
                             self.stack.pop();
                         }
 
-                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str()) {
+                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str(), *j) {
                             Some((response, code)) => {
                                 if code == expected_code {
                                     self.stack.pop();
@@ -233,7 +247,7 @@ impl Vm {
                         self.err += 1;
                     }
                 }
-                Inst::InstReqandCompare(m, b) => {
+                Inst::InstReqandCompare(m, b, j) => {
                     if self.stack.len() > 2 {
                         let mut body = String::from("");
 
@@ -248,7 +262,7 @@ impl Vm {
                             self.stack.pop();
                         }
 
-                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str()) {
+                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str(), *j) {
                             Some((response, code)) => {
                                 if code == expected_code {
                                     if response == expected_content {

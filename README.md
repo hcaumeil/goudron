@@ -108,6 +108,13 @@ post "url" body "value"
 post "url" body "value" 200
 ```
 
+Use the keyword json for "application/json" content right after the url : 
+
+```
+post "url" json '{ "name": "apple", "point": 3 }'
+post "url" json '{ "name": "apple", "point": 3 }' 200
+```
+
 Also, you can get the response into a variable like this : 
 
 
