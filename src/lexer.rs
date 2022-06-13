@@ -109,12 +109,13 @@ impl<'l> Lexer<'l> {
 
     pub fn read_string(&mut self) -> Token {
         let start = (self.line_nb, self.cursor);
+        let seq = self.c;
         self.advance();
 
         let content: String;
         let mut buffer: Vec<u8> = Vec::new();
 
-        while (self.c != '\"') && self.state {
+        while (self.c != seq) && self.state {
             if self.c == '\\' {
                 if self.cursor == self.line.len() {
                     self.err
@@ -142,7 +143,7 @@ impl<'l> Lexer<'l> {
             self.advance();
         }
 
-        if !self.state || self.c != '\"' {
+        if !self.state || self.c != seq {
             self.err.push(ErrorUnclosedString(start));
         } else {
             self.advance();
@@ -268,7 +269,7 @@ impl<'l> Lexer<'l> {
                 res.push(self.read_char(TokenSort::TokenPlus));
             } else if self.c == '?' {
                 res.push(self.read_char(TokenSort::TokenQmark));
-            } else if self.c == '\"' {
+            } else if self.c == '\"' || self.c == '\'' {
                 res.push(self.read_string());
             } else if self.is_alpha() {
                 res.push(self.read_id());
