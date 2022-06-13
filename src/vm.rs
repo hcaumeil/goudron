@@ -167,7 +167,12 @@ impl Vm {
                             self.stack.pop();
                         }
 
-                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str(), *j) {
+                        match Vm::req(
+                            self.stack[self.stack.len() - 1].clone(),
+                            body,
+                            m.as_str(),
+                            *j,
+                        ) {
                             Some((_, code)) => {
                                 if code == expected_code {
                                     self.stack.pop();
@@ -212,7 +217,12 @@ impl Vm {
                             self.stack.pop();
                         }
 
-                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str(), *j) {
+                        match Vm::req(
+                            self.stack[self.stack.len() - 1].clone(),
+                            body,
+                            m.as_str(),
+                            *j,
+                        ) {
                             Some((response, code)) => {
                                 if code == expected_code {
                                     self.stack.pop();
@@ -262,7 +272,12 @@ impl Vm {
                             self.stack.pop();
                         }
 
-                        match Vm::req(self.stack[self.stack.len() - 1].clone(), body, m.as_str(), *j) {
+                        match Vm::req(
+                            self.stack[self.stack.len() - 1].clone(),
+                            body,
+                            m.as_str(),
+                            *j,
+                        ) {
                             Some((response, code)) => {
                                 if code == expected_code {
                                     if response == expected_content {

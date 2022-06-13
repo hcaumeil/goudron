@@ -215,7 +215,11 @@ impl<'l> Parser<'l> {
 
                                     if self.current_sort() == TokenId {
                                         let var = self.current_value();
-                                        self.add_inst(InstReqandPush(String::from(method), body, json));
+                                        self.add_inst(InstReqandPush(
+                                            String::from(method),
+                                            body,
+                                            json,
+                                        ));
                                         self.add_inst_load();
                                         self.push_var(var);
                                         self.next();
@@ -232,7 +236,7 @@ impl<'l> Parser<'l> {
                                         self.add_inst(InstReqandCompare(
                                             String::from(method),
                                             body,
-                                            json
+                                            json,
                                         ));
                                     }
                                 }

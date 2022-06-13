@@ -193,7 +193,7 @@ impl<'l> Lexer<'l> {
         } else if content.as_str() == "body" {
             ts = TokenSort::TokenBody;
         } else if content.as_str() == "json" {
-            ts = TokenSort::TokenJson;            
+            ts = TokenSort::TokenJson;
         } else if content.as_str() == "get" {
             ts = TokenSort::TokenGet;
         } else if content.as_str() == "GET" {
