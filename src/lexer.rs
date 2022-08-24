@@ -17,6 +17,7 @@ pub enum TokenSort {
     TokenQmark,
     TokenPrint,
     TokenBody,
+    TokenHeader,
     TokenJson,
     TokenGet,
     TokenPost,
@@ -192,6 +193,8 @@ impl<'l> Lexer<'l> {
             ts = TokenSort::TokenPrint;
         } else if content.as_str() == "body" {
             ts = TokenSort::TokenBody;
+        } else if content.as_str() == "header" {
+            ts = TokenSort::TokenHeader;
         } else if content.as_str() == "json" {
             ts = TokenSort::TokenJson;
         } else if content.as_str() == "get" {

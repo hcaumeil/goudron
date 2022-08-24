@@ -11,9 +11,9 @@ pub enum Inst {
     InstGain(String),
     InstPlus,
     InstPrint,
-    InstReq(String, bool, bool),
-    InstReqandPush(String, bool, bool),
-    InstReqandCompare(String, bool, bool),
+    InstReq(String, bool, bool, i32),
+    InstReqandPush(String, bool, bool, i32),
+    InstReqandCompare(String, bool, bool, i32),
 }
 
 pub struct Vm {
@@ -43,12 +43,13 @@ impl Vm {
         }
     }
 
-    fn req(url: String, body: String, method: &str, json: bool) -> Option<(String, String)> {
+    fn req(url: String, body: String, method: &str, json: bool, http_headers: Vec<String>) -> Option<(String, String)> {
         let mut res = String::new();
         let code: String;
         let mut data = Vec::new();
         let mut handle = Easy::new();
         let mut b = Box::leak(body.into_boxed_str()).as_bytes();
+        let mut headers = List::new();
 
         match handle.url(url.as_str()) {
             Ok(_) => {}
@@ -72,16 +73,22 @@ impl Vm {
         }
 
         if json {
-            let mut list = List::new();
-            match list.append("content-type: application/json") {
+            match headers.append("content-type: application/json") {
                 Ok(_) => {}
                 Err(_) => return None,
             }
+        }
 
-            match handle.http_headers(list) {
+        for h in http_headers {
+            match headers.append(&h) {
                 Ok(_) => {}
                 Err(_) => return None,
             }
+        }
+
+        match handle.http_headers(headers) {
+            Ok(_) => {}
+            Err(_) => return None,
         }
 
         {
@@ -155,12 +162,18 @@ impl Vm {
                         self.stack.pop();
                     }
                 }
-                Inst::InstReq(m, b, j) => {
+                Inst::InstReq(m, b, j, h) => {
                     if self.stack.len() > 1 {
                         let mut body = String::from("");
+                        let mut headers = Vec::new();
 
                         let expected_code = self.stack[self.stack.len() - 1].clone();
                         self.stack.pop();
+
+                        for _ in 0..*h {
+                            headers.push(self.stack[self.stack.len() - 1].clone());
+                            self.stack.pop();
+                        }
 
                         if *b {
                             body = self.stack[self.stack.len() - 1].clone();
@@ -172,6 +185,7 @@ impl Vm {
                             body,
                             m.as_str(),
                             *j,
+                            headers,
                         ) {
                             Some((_, code)) => {
                                 if code == expected_code {
@@ -180,7 +194,7 @@ impl Vm {
                                 } else {
                                     if !self.silent {
                                         eprintln!(
-                                            "route error: {} {} : Invalid respose code",
+                                            "route error: {} {} : Invalid response code",
                                             m.as_str(),
                                             self.stack[self.stack.len() - 1].clone()
                                         );
@@ -205,12 +219,18 @@ impl Vm {
                         self.err += 1;
                     }
                 }
-                Inst::InstReqandPush(m, b, j) => {
+                Inst::InstReqandPush(m, b, j, h) => {
                     if self.stack.len() > 1 {
                         let mut body = String::from("");
+                        let mut headers = Vec::new();
 
                         let expected_code = self.stack[self.stack.len() - 1].clone();
                         self.stack.pop();
+
+                        for _ in 0..*h {
+                            headers.push(self.stack[self.stack.len() - 1].clone());
+                            self.stack.pop();
+                        }
 
                         if *b {
                             body = self.stack[self.stack.len() - 1].clone();
@@ -222,6 +242,7 @@ impl Vm {
                             body,
                             m.as_str(),
                             *j,
+                            headers
                         ) {
                             Some((response, code)) => {
                                 if code == expected_code {
@@ -257,15 +278,21 @@ impl Vm {
                         self.err += 1;
                     }
                 }
-                Inst::InstReqandCompare(m, b, j) => {
+                Inst::InstReqandCompare(m, b, j, h) => {
                     if self.stack.len() > 2 {
                         let mut body = String::from("");
+                        let mut headers = Vec::new();
 
                         let expected_content = self.stack[self.stack.len() - 1].clone();
                         self.stack.pop();
 
                         let expected_code = self.stack[self.stack.len() - 1].clone();
                         self.stack.pop();
+
+                        for _ in 0..*h {
+                            headers.push(self.stack[self.stack.len() - 1].clone());
+                            self.stack.pop();
+                        }
 
                         if *b {
                             body = self.stack[self.stack.len() - 1].clone();
@@ -277,6 +304,7 @@ impl Vm {
                             body,
                             m.as_str(),
                             *j,
+                            headers
                         ) {
                             Some((response, code)) => {
                                 if code == expected_code {

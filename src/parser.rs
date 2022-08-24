@@ -173,13 +173,29 @@ impl<'l> Parser<'l> {
         }
     }
 
+    pub fn parse_headers(&mut self) -> i32 {
+        if !self.reach_end() && self.current_sort() == TokenHeader {
+            if self.check_near_end("a string or a variable") {
+                self.next();
+                if self.parse_value() {
+                    return 1+self.parse_headers()
+                }
+            }
+        }
+        
+        return 0;
+    } 
+
     pub fn parse_req(&mut self, method: &str) {
         if self.check_near_end("a string or a variable") {
             let mut body: bool = false;
             let mut json: bool = false;
+            let mut headers: i32 = 0;
             self.next();
 
             if self.parse_value() {
+                headers = headers + self.parse_headers();
+
                 if !self.reach_end() && self.current_sort() == TokenBody {
                     if self.check_near_end("a string or a variable") {
                         self.next();
@@ -219,6 +235,7 @@ impl<'l> Parser<'l> {
                                             String::from(method),
                                             body,
                                             json,
+                                            headers
                                         ));
                                         self.add_inst_load();
                                         self.push_var(var);
@@ -237,20 +254,21 @@ impl<'l> Parser<'l> {
                                             String::from(method),
                                             body,
                                             json,
+                                            headers
                                         ));
                                     }
                                 }
                             }
                             _ => {
-                                self.add_inst(InstReq(String::from(method), body, json));
+                                self.add_inst(InstReq(String::from(method), body, json, headers));
                             }
                         }
                     } else {
-                        self.add_inst(InstReq(String::from(method), body, json));
+                        self.add_inst(InstReq(String::from(method), body, json, headers));
                     }
                 } else {
                     self.add_inst(InstPush(String::from("200")));
-                    self.add_inst(InstReq(String::from(method), body, json));
+                    self.add_inst(InstReq(String::from(method), body, json, headers));
                 }
             }
         }

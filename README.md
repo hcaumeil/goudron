@@ -101,22 +101,31 @@ By default, it is 200, but you can specify it like this :
 get "url" 200
 ```
 
+To add headers to the request, put the header keyword and the header :
+
+```
+post "url" header "header_type: header"
+post "url" header "header_type: header" 200
+post "url" header "header_type: header" header "other_header_type: other_header" 200 200
+```
+
 You can add a body with the request with the keyword body right after the url : 
 
 ```
 post "url" body "value"
 post "url" body "value" 200
+post "url" header "header_type: header" body "value" 200
 ```
 
-Use the keyword json for "application/json" content right after the url : 
+Use the keyword json for "application/json" body right after the url : 
 
 ```
 post "url" json '{ "name": "apple", "point": 3 }'
 post "url" json '{ "name": "apple", "point": 3 }' 200
+post "url" header "header_type: header" json '{ "name": "apple", "point": 3 }' 200
 ```
 
 Also, you can get the response into a variable like this : 
-
 
 ```
 get "url" = variable
